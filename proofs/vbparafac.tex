@@ -1,0 +1,25 @@
+\documentclass[10pt]{article}
+
+\usepackage{amsmath,amssymb,bm}
+\usepackage[a4paper]{geometry}
+
+%\newcommand{\Like}[1]{\mathcal{L} \left( #1 \right)}
+%\newcommand{\var}[1]{\mathrm{var} \left( #1 \right)}
+%\newcommand{\E}[2][]{\mathbb{E}_{#1} \left[ #2 \right]}
+%\newcommand{\Log}[1]{\log \left( #1 \right)}
+%\newcommand{\KL}[2]{\mathrm{KL} \left( #1 \vert\vert #2 \right)}
+\newcommand{\Angle}[1]{\left \langle #1 \right \rangle}
+\newcommand{\Eq}[1]{\Angle{#1}_Q}
+\newcommand{\N}[2][]{\mathcal{N} \left( #1,#2 \right)}
+\newcommand{\Det}[1]{\left| #1 \right|}
+\newcommand{\Tr}[1]{Tr\left( #1 \right)}
+
+\begin{document}
+
+	\begin{align}
+		\mathcal{L}(q)&=\int Q(\theta) \ln{\frac{p(t,\theta)}{Q(\theta)}} \, d\theta \\
+		&=\Eq{\ln{\frac{p(t,\theta)}{Q(\theta)}}} \\
+		&=\underbrace{\Eq{\ln{p(t,\theta)}}}_{(1)} - \underbrace{\Eq{\ln{q(\theta)}}}_{(2)}
+	\end{align}
+	
+\end{document}

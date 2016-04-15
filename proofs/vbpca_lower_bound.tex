@@ -1,0 +1,123 @@
+\documentclass[10pt]{article}
+
+\usepackage{amsmath,amssymb,bm}
+\usepackage[a4paper]{geometry}
+
+%\newcommand{\Like}[1]{\mathcal{L} \left( #1 \right)}
+%\newcommand{\var}[1]{\mathrm{var} \left( #1 \right)}
+%\newcommand{\E}[2][]{\mathbb{E}_{#1} \left[ #2 \right]}
+%\newcommand{\Log}[1]{\log \left( #1 \right)}
+%\newcommand{\KL}[2]{\mathrm{KL} \left( #1 \vert\vert #2 \right)}
+\newcommand{\Angle}[1]{\left \langle #1 \right \rangle}
+\newcommand{\Eq}[1]{\Angle{#1}_Q}
+\newcommand{\N}[2][]{\mathcal{N} \left( #1,#2 \right)}
+\newcommand{\Det}[1]{\left| #1 \right|}
+\newcommand{\Tr}[1]{Tr\left( #1 \right)}
+
+\begin{document}
+
+	\begin{align}
+		\mathcal{L}(q)&=\int Q(\theta) \ln{\frac{p(t,\theta)}{Q(\theta)}} \, d\theta \\
+		&=\Eq{\ln{\frac{p(t,\theta)}{Q(\theta)}}} \\
+		&=\underbrace{\Eq{\ln{p(t,\theta)}}}_{(1)} - \underbrace{\Eq{\ln{q(\theta)}}}_{(2)}
+	\end{align}
+	
+	\begin{align}
+		\Eq{\ln{p(\bm{t},\theta)}}=&\Eq{\ln{p(\bm{t},\bm{X},\bm{m},\bm{W},\bm{\alpha},\tau)}} \\
+		=&\Eq{\ln{p(\bm{t}|\bm{X},\bm{m},\bm{W},\bm{\alpha},\tau)p(\bm{X})p(\bm{m})p(\bm{W} \vert \bm{\alpha})p(\bm{\alpha})p(\tau)}} \\
+		=&\underbrace{\Eq{\ln{p(\bm{t}|\bm{X},\bm{m},\bm{W},\bm{\alpha},\tau)}}}_{(3)}+\underbrace{\Eq{\ln{p(\bm{X})}}}_{(4)}+\underbrace{\Eq{\ln{p(\bm{m})}}}_{(5)}+\\
+		& \underbrace{\Eq{\ln{p(\bm{W}\vert \bm{\alpha})}}}_{(6)}+\underbrace{\Eq{\ln{p(\bm{\alpha})}}}_{(8)}+\underbrace{\Eq{\ln{p(\tau)}}}_{(7)} \nonumber
+	\end{align}
+	
+	\begin{align}
+		\Eq{\ln{p(\bm{t}|\bm{\theta)}}}=&\Eq{\ln{\prod_{n=1}^{N}{p(t_n|\bm{X},\bm{m},\bm{W},\bm{\alpha},\tau)}}} \\
+		=&\Eq{\ln{\prod_{n=1}^{N}{\N[t_n \mid \bm{W}x+\bm{m}]{\sigma^2\bm{I}}}}} \\
+		=&\Eq{\sum_{n=1}^{N}{\ln{\N[t_n \mid \bm{W}x+\bm{m}]{\sigma^2\bm{I}}}}} \\
+		=&-\frac{Nd}{2}\ln{2\pi}+\frac{dN}{2}\Eq{\ln{\tau}}-\Eq{\tau}\left(\frac{1}{2}\sum_{n=1}^{N}{\gamma_n}\right) \\
+		=&\frac{dN}{2}(\psi(\tilde{a}_\tau)-\ln{\tilde{b}_\tau})-\Eq{\tau}(\tilde{b}_\tau-b_\tau)) + const \\
+		=&-\frac{dN}{2}\ln{\tilde{b}_\tau}-\Eq{\tau}(\tilde{b}_\tau-b_\tau)) + const
+	\end{align}
+	\begin{align}
+		\frac{1}{2}\sum_{n=1}^N \gamma_n=&\frac{1}{2}\sum_{n=1}^N\langle(t_n-\bm{W}x_n-\bm{m})^T(t_n-\bm{W}x_n-\bm{m})\rangle \\
+		=& \frac{1}{2}\sum_{n=1}^N \langle \|t_n\|^2+\|\bm{m}\|^2+x_n^TW^TWx_n \\
+		&-2t_n^T\bm{W}z-2t_n^T\bm{m}+2\bm{m}^T\bm{W}x_n \rangle \nonumber \\ 
+		=&\frac{1}{2}\sum_{n=1}^N \|t_n\|^2+\Angle{\|\bm{m}\|^2}+\Tr{\Angle{W^TW}\Angle{x_nx_n^T}} \\
+		&-2t_n^T\Angle{\bm{W}}\Angle{x_n}-2t_n^T\Angle{\bm{m}}+2\Angle{\bm{m}^T}\Angle{\bm{W}}\Angle{x_n} \\
+		=& \tilde{b}_\tau-b_\tau
+	\end{align}
+	
+	\begin{align}
+		\Eq{\ln{p(\bm{X})}}=&\Eq{\ln{\prod_{n=1}^{N}{N(x_n|\bm{0},\bm{I}_q)}}} \\
+		=&\Eq{\sum_{n=1}^{N}{\ln{N(x_n|\bm{0},\bm{I}_q)}}} \\
+		=&-\frac{Nq}{2}\ln{2\pi}-\frac{1}{2}\sum_{n=1}^{N}{\Eq{\|x_n\|^2}} \\
+		=&-\frac{1}{2}\sum_{n=1}^{N}{\Eq{\|x_n\|^2}}+const
+	\end{align}	
+	
+	\begin{align}
+		\Eq{\ln{p(\bm{\mu})}}=&\Eq{\ln{N(\mu|\bm{0},\beta^{-1}\bm{I}_d)}}\\
+		=&\Eq{-\frac{d}{2}\ln{2\pi}-\frac{1}{2}\ln{\Det{\beta^{-1}\bm{I}_d}}-\frac{1}{2}\bm{\mu}^T\beta I_d\bm{\mu}} \\
+		=&-\frac{\beta}{2}\Eq{\|\bm{\mu}\|^2}+const \\
+	\end{align}	
+	
+	\begin{align}
+		\Eq{\ln{p(\bm{W} \vert \bm{\alpha})}}=&\Eq{\ln{\prod_{i=1}^q \left( \frac{\alpha_i}{2\pi} \right)^{d/2} \exp \left( -\frac{1}{2}\alpha_i \| \bm{w}_i \|^2 \right) }} \\
+		=&\frac{1}{2}\sum_{i=1}^q d\Eq{\ln{\alpha_i}} - d\ln{2\pi} -\Eq{\alpha_i} \Eq{\| \bm{w}_i \|^2 } \\
+		=&\frac{1}{2}\sum_{i=1}^q d(\psi(\tilde{a}_\alpha)-\ln{\tilde{b}_{\alpha i}})-\Eq{\alpha_i} \Eq{\| \bm{w}_i \|^2 } + const \\
+		=&-\frac{1}{2}\sum_{i=1}^q d\ln{\tilde{b}_{\alpha i}}+\Eq{\alpha_i} \Eq{\| \bm{w}_i \|^2 } + const
+	\end{align}		
+	
+	\begin{align}
+		\Eq{\ln{p(\bm{\alpha})}}=&\Eq{\prod_{i=1}^q \ln \Gamma(\alpha_i \vert a_\alpha,b_{\alpha i})} \\
+		=&\sum_{i=1}^q \Eq{a_\alpha\ln{b_{\alpha i}}-\ln{\Gamma(a_\alpha)}+(a_\alpha-1)\ln{\alpha_i}-b_{\alpha i} \alpha_i} \\
+		=&\sum_{i=1}^q \tilde{a}_\alpha\ln{\tilde{b}_{\alpha i}}+(\tilde{a}_\alpha-1)\Eq{\ln{\alpha_i}}-\tilde{b}_{\alpha i}\Eq{\alpha_i} + const \\
+		=&\sum_{i=1}^q \tilde{a}_\alpha\ln{\tilde{b}_{\alpha i}}+(\tilde{a}_\alpha-1)(\psi(\tilde{a}_\alpha)-\ln{\tilde{b}_{\alpha i}})-\tilde{b}_{\alpha i}\frac{\tilde{a}_\alpha}{\tilde{b}_{\alpha i}} + const \\
+		=&\sum_{i=1}^q \ln{\tilde{b}_{\alpha i}} + const
+	\end{align}		
+	
+	\begin{align}
+		\Eq{\ln{p(\tau)}}=&\Eq{\ln{\Gamma(\tau \vert a_\tau,b_\tau)}}\\
+		=&\ln{\tilde{b}_\tau} + const
+	\end{align}
+
+	
+	\begin{align}
+		\Eq{\ln{Q(\theta)}}=&\Eq{\ln{\prod_i{Q_i(\theta_i)}}} \\
+		=&\Eq{\sum_i{\ln{Q_i(\theta_i)}}} \\
+		=&\underbrace{\Eq{\ln{Q(\bm{X})}}}_{(9)} + \underbrace{\Eq{\ln{Q(\bm{m})}}}_{(10)} + \underbrace{\Eq{\ln{Q(\bm{W})}}}_{(11)} + \\
+		& \underbrace{\Eq{\ln{Q(\bm{\alpha})}}}_{(12)} +\underbrace{\Eq{\ln{Q(\tau)}}}_{(13)} \nonumber
+	\end{align}
+
+	\begin{align}
+		-\Eq{\ln{Q(\bm{X})}}&=-\Eq{\ln{\prod_{n=1}^N{\N[\bm{x}_n \vert \mu_x]{\Sigma_x}}}} \\
+		&=\sum_{n=1}^N{-\Eq{\ln{\N[\bm{x}_n \vert \mu_x]{\Sigma_x}}}} \\
+		&=\sum_{n=1}^N{\frac{q}{2}(1+\ln(2\pi)) + \frac{1}{2}\ln{\Det{\Sigma_x}}} \\
+		&=\frac{Nq}{2}( 1+\ln(2\pi)) + \frac{N}{2}\ln{\Det{\Sigma_x}} \\
+		&=\frac{N}{2}\ln{\Det{\Sigma_x}} + const
+	\end{align}
+	
+	\begin{align}
+		-\Eq{\ln{Q(\bm{m})}}&=-\Eq{\ln{\N[\mu_m]{\Sigma_m}}} \\
+		&=\frac{q}{2}( 1+\ln(2\pi)) + \frac{1}{2}\ln{\Det{\Sigma_m}} \\
+		&=\frac{1}{2}\ln{\Det{\Sigma_m}} + const
+	\end{align}
+
+	\begin{align}
+		-\Eq{\ln{Q(\bm{W})}}&=-\Eq{\ln{\prod_{i=1}^d{\N[\bm{W}_i \vert \mu_{\bm{W}_i}]{\Sigma_{\bm{W}}}}}} \\
+		&=\sum_{i=1}^d{-\Eq{\ln{\N[{\bm{W}_i} \vert \mu_{\bm{W}_i}]{\Sigma_{\bm{W}}}}}} \\
+		&=\frac{dq}{2}(1+\ln(2\pi)) + \sum_{i=1}^d{\frac{1}{2}\ln{\Det{\Sigma_{\bm{W}}}}} \\
+		&=\frac{d}{2}\ln{\Det{\Sigma_{\bm{W}}}} + const
+	\end{align}
+	
+	\begin{align}
+		-\Eq{\ln{Q(\bm{\alpha})}}=&-\Eq{\ln{\prod_{i=1}^q \Gamma(\alpha_i \vert a_\alpha,b_{\alpha i})}} \\
+				&=\sum_{i=1}^q \tilde{a}_\alpha-\ln{\tilde{b}_{\alpha i}}+\ln{\Gamma(\tilde{a}_\alpha)}+(1-\tilde{a}_\alpha)\psi(\tilde{a}_\alpha) \\
+				&=-\sum_{i=1}^q \ln{\tilde{b}_{\alpha i}} + const
+	\end{align}		
+	
+	\begin{align}
+		-\Eq{\ln{Q(\tau)}}&=-\Eq{\ln{\Gamma(\tau \vert a_\tau,b_\tau)}} \\
+		=&\tilde{a}_\tau-\ln{\tilde{b}_\tau}+\ln{\Gamma(\tilde{a}_\tau)}+(1-\tilde{a}_\tau)\psi(\tilde{a}_\tau) \\
+		=&-\ln{\tilde{b}_\tau} + const
+	\end{align}
+	
+\end{document}
