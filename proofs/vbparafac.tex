@@ -15,11 +15,183 @@
 \newcommand{\Tr}[1]{Tr\left( #1 \right)}
 
 \begin{document}
+\section{Lower bound}
+    \begin{align}
+        \mathcal{L}(q)&=\int Q(\theta) \ln{\frac{p(\bm{x},\theta)}{Q(\theta)}} \, d\theta \nonumber \\
+        &=\Eq{\ln{\frac{p(\bm{x},\theta)}{Q(\theta)}}} \nonumber \\
+        &=\underbrace{\Eq{\ln{p(\bm{x},\theta)}}}_{(\ref{ptheta})} - \underbrace{\Eq{\ln{q(\theta)}}}_{(\ref{qtheta})}
+    \end{align}
 
-	\begin{align}
-		\mathcal{L}(q)&=\int Q(\theta) \ln{\frac{p(t,\theta)}{Q(\theta)}} \, d\theta \\
-		&=\Eq{\ln{\frac{p(t,\theta)}{Q(\theta)}}} \\
-		&=\underbrace{\Eq{\ln{p(t,\theta)}}}_{(1)} - \underbrace{\Eq{\ln{q(\theta)}}}_{(2)}
-	\end{align}
-	
+    \begin{align}
+        \Eq{\ln{p(\bm{x},\theta)}}=&\Eq{\ln{p(\bm{x},\bm{Z},\bm{\mu},\bm{W},\bm{\alpha},\bm{\delta},\bm{\tau})}} \nonumber \\
+        =&\Eq{\ln{p(\bm{x}|\bm{Z},\bm{\mu},\bm{W},\bm{\alpha},\bm{\delta},\bm{\tau})p(\bm{Z})p(\bm{\mu})p(\bm{W} | \bm{\alpha})p(\bm{\alpha})p(\bm{\delta})p(\bm{\tau})}}\nonumber \\
+        =&\underbrace{\Eq{\ln{p(\bm{x}|\bm{Z},\bm{\mu},\bm{W},\bm{\delta},\bm{\tau})}}}_{(\ref{px})}+\underbrace{\Eq{\ln{p(\bm{Z})}}}_{(\ref{pz})}+\underbrace{\Eq{\ln{p(\bm{\mu})}}}_{(\ref{pmu})}+ \nonumber \\
+        & \underbrace{\Eq{\ln{p(\bm{W}| \bm{\alpha})}}}_{(\ref{pwalpha})} + \underbrace{\Eq{\ln{\bm{\alpha}}}}_{(\ref{palpha})}+\underbrace{\Eq{\ln{p(\bm{\delta})}}}_{(\ref{pdelta})}+\underbrace{\Eq{\ln{p(\bm{\tau})}}}_{(\ref{ptau})}
+        \label{ptheta}
+    \end{align}
+
+    \begin{align}
+        \Eq{\ln{Q(\theta)}} &= \Eq{\ln{q(\bm{W})q(\bm{Z})q(\bm{\mu})q(\bm{\alpha})q(\bm{\delta})q(\bm{\tau})}} \nonumber \\
+        &=\underbrace{\Eq{\ln{q(\bm{W})}}}_{\ref{qw}} + \underbrace{\Eq{\ln{q(\bm{Z})}}}_{\ref{qz}} + \underbrace{\Eq{\ln{q(\bm{\mu})}}}_{\ref{qmu}} + \underbrace{\Eq{\ln{q(\bm{\alpha})}}}_{\ref{qalpha}} + \underbrace{\Eq{\ln{q(\bm{\delta})}}}_{\ref{qdelta}} + \underbrace{\Eq{\ln{q(\bm{\tau)}}}}_{\ref{qtau}}
+        \label{qtheta}
+    \end{align}
+
+    \begin{align}
+        \Eq{\ln{p(\bm{X}|\bm{Z},\bm{\mu},\bm{W},\bm{\delta},\tau)}}&=\Eq{\ln{\prod_b^B\prod_t^T\N[{\bm{x_{t}^{(b)}}}|\bm{W}diag(\bm{\delta}^{(b)})\bm{z}_t - \bm{\mu}^{(b)}]{\bm{\tau}_t^{(b)-1}I_V}}} \nonumber \\
+        &=\sum_b^B\sum_t^T\Eq{\ln{\N[{\bm{x_{t}^{(b)}}}|\bm{W}diag(\bm{\delta}^{(b)})\bm{z}_t - \bm{\mu}^{(b)}]{\bm{\tau}_t^{(b)-1}I_V}}} \nonumber \\
+        &=\sum_b^B\sum_t^T\Eq{-\frac{V}{2}\ln{2\pi}} + \Eq{ \frac{\ln{|\bm{\tau}_t^{(b)-1}I_V|}}{2}} \nonumber \\
+        & -\frac{1}{2}\Eq{(\bm{x_t^{(b)}} - \bm{W}diag(\bm{\delta}^{(b)})\bm{z}_t - \bm{\mu}^{(b)})^T(\bm{\tau}^{(b)}I_V)(\bm{x}_t^{(b)} -  \bm{W}diag(\bm{\delta}^{(b)})\bm{z}_t - \bm{\mu}^{(b)})} \nonumber \\
+        & = \frac{1}{2}\sum_b^B\sum_t^T-V( \psi(\tilde{\alpha}_{\bm{\tau}_t^{(b)}}) - \ln{\tilde{b}_{\bm{\tau}_t^{(b)}}}) + \Eq{\bm{\tau}_t^{(b)}}(\|x_t^{(b)}\|^2 - 2\Eq{x_t^{(b)T}\bm{W}diag(\bm{\delta}^{(b)}\bm{z}_t)} \nonumber \\
+        & - 2\Eq{x_t^{(b)T}}\Eq{\bm{\mu}^{(b)}}  + Tr(\Eq{\bm{W}^T\bm{W}}\Eq{\bm{z}\bm{z}_t^T}\Eq{diag(\bm{\delta}^{(b)})^2}) \nonumber \\
+        & + 2 \Eq{\bm{\mu}^{(b)T}}\Eq{\bm{W}}\Eq{diag(\bm{\delta}^{(b)})}\Eq{\bm{z}_t} + \|\bm{\mu}\|^2) + const \nonumber \\
+        \label{px}
+    \end{align}
+
+    \begin{align}
+        \Eq{\ln{p(\bm{Z})}}&=\Eq{\ln{\prod_{n=1}^{N}{N(\bm{z}_n|\bm{0},\bm{I}_q)}}} \nonumber \\
+        &=\Eq{\sum_{n=1}^{N}{\ln{N(\bm{z}_n|\bm{0},\bm{I}_q)}}} \nonumber \\
+        &=-\frac{Nq}{2}\ln{2\pi}-\frac{1}{2}\sum_{n=1}^{N}{\Eq{\|\bm{z}_n\|^2}} \nonumber \\
+        &=-\frac{1}{2}\sum_{n=1}^{N}{\Eq{\|\bm{z}_n\|^2}}+const
+        \label{pz}
+    \end{align}
+
+    \begin{align}
+        \Eq{\ln{p(\bm{\mu})}}&=\Eq{\ln{N(\mu|\bm{0},\beta^{-1}\bm{I}_d)}} \nonumber \\
+        &=\Eq{-\frac{d}{2}\ln{2\pi}-\frac{1}{2}\ln{\Det{\beta^{-1}\bm{I}_d}}-\frac{1}{2}\bm{\mu}^T\beta I_d\bm{\mu}} \nonumber \\
+        &=-\frac{\beta}{2}\Eq{\|\bm{\mu}\|^2}+const
+        \label{pmu}
+    \end{align}
+
+    \begin{align}
+        \Eq{\ln{p(\bm{W} \vert \bm{\alpha})}}=&\Eq{\ln{\prod_{i=1}^q \left( \frac{\alpha_i}{2\pi} \right)^{T/2} \exp \left( -\frac{1}{2}\alpha_i \| \bm{w}_i \|^2 \right) }} \nonumber \\
+        =&\frac{1}{2}\sum_{i=1}^q T\Eq{\ln{\alpha_i}} - T\ln{2\pi} -\Eq{\alpha_i} \Eq{\| \bm{w}_i \|^2 } \nonumber \\
+        =&\frac{1}{2}\sum_{i=1}^q T(\psi(\tilde{a}_\alpha)-\ln{\tilde{b}_{\alpha i}})-\Eq{\alpha_i} \Eq{\| \bm{w}_i \|^2 } + const \nonumber \\
+        =&-\frac{1}{2}\sum_{i=1}^q T\ln{\tilde{b}_{\alpha i}}+\Eq{\alpha_i} \Eq{\| \bm{w}_i \|^2 } + const
+        \label{pwalpha}
+    \end{align}
+
+    \begin{align}
+        \Eq{\ln{p(\bm{\alpha})}}=&\Eq{\prod_{i=1}^q \ln \Gamma(\alpha_i \vert a_\alpha,b_{\alpha i})} \nonumber \\
+        =&\sum_{i=1}^q \Eq{a_\alpha\ln{b_{\alpha i}}-\ln{\Gamma(a_\alpha)}+(a_\alpha-1)\ln{\alpha_i}-b_{\alpha i} \alpha_i} \nonumber \\
+        =&\sum_{i=1}^q \tilde{a}_\alpha\ln{\tilde{b}_{\alpha i}}+(\tilde{a}_\alpha-1)\Eq{\ln{\alpha_i}}-\tilde{b}_{\alpha i}\Eq{\alpha_i} + const \nonumber \\
+        =&\sum_{i=1}^q \tilde{a}_\alpha\ln{\tilde{b}_{\alpha i}}+(\tilde{a}_\alpha-1)(\psi(\tilde{a}_\alpha)-\ln{\tilde{b}_{\alpha i}})-\tilde{b}_{\alpha i}\frac{\tilde{a}_\alpha}{\tilde{b}_{\alpha i}} + const \nonumber \\
+        =&\sum_{i=1}^q \ln{\tilde{b}_{\alpha i}} + const
+        \label{palpha}
+    \end{align}
+
+    \begin{align}
+        \Eq{\ln{p(\bm{\delta})}}&=\Eq{\ln{\prod_b^B N(\bm{\delta}^{(b)}|0,I_q)}} \nonumber \\
+        &=\sum_b^B\Eq{\ln{N(\bm{\delta}^{(b)}|0,I_q)}} \nonumber \\
+        &=\sum_b^B\Eq{-\frac{q}{2}\ln{2\pi} -\frac{1}{2}\ln{|I_q|} - \frac{1}{2}\bm{\delta}^{(b)T}\bm{\delta}^{(b)}} \nonumber \\
+        &=\sum_b^B\Eq{\|\bm{\delta}^{(b)}\|^2} + const
+        \label{pdelta}
+    \end{align}
+
+    \begin{align}
+        \Eq{\ln{p(\bm{\tau})}}&=\Eq{\ln{\prod_b^B\prod_t^T\Gamma(\bm{\tau}_t^{(b)}| \alpha_{\tau^{(b)}}, b_{\tau^{(b)}})}} \nonumber \\
+        &=\sum_b^B\sum_t^T\Eq{\ln{\Gamma(\bm{\tau}_t^{(b)}| \alpha_{\tau^{(b)}}, b_{\tau^{(b)}})}} \nonumber \\
+        &=\sum_b^B\sum_t^T \psi(\alpha_{\tau^{(b)}}) - \ln{b_{\tau^{(b)}}} \nonumber \\
+        &=T\sum_b^B\psi(\alpha_{\tau^{(b)}}) - \ln{b_{\tau^{(b)}}}
+        \label{ptau}
+    \end{align}
+
+    \begin{align}
+        \Eq{\ln{Q(\bm{W})}}&=\Eq{\ln{\prod_{i=1}^d{\N[\bm{W}_i | \mu_{\bm{W}_i}]{\Sigma_{\bm{W}}}}}} \nonumber\\
+        &=\sum_{i=1}^d{\Eq{\ln{\N[{\bm{W}_i} | \mu_{\bm{W}_i}]{\Sigma_{\bm{W}}}}}} \nonumber \\
+        &=-\frac{dq}{2}(1+\ln(2\pi)) - \sum_{i=1}^d{\frac{1}{2}\ln{\Det{\Sigma_{\bm{W}}}}}  \nonumber \\
+        &=-\frac{d}{2}\ln{\Det{\Sigma_{\bm{W}}}} + const
+        \label{qw}
+    \end{align}
+
+    \begin{align}
+        \Eq{\ln{Q(\bm{Z})}}&=\Eq{\ln{\prod_{n=1}^N{\N[\bm{z}_n | \mu_{\bm{z}}]{\Sigma_{\bm{z}}}}}} \nonumber \\
+        &=\sum_{n=1}^N{\Eq{\ln{\N[\bm{z}_n \vert \mu_{\bm{z}}]{\Sigma_{\bm{z}}}}}} \nonumber \\
+        &=\sum_{n=1}^N{-\frac{q}{2}(1+\ln(2\pi)) - \frac{1}{2}\ln{\Det{\Sigma_{\bm{z}}}}} \nonumber \\
+        &=-\frac{Nq}{2}( 1+\ln(2\pi)) - \frac{N}{2}\ln{\Det{\Sigma_{\bm{z}}}} \nonumber \\
+        &=-\frac{N}{2}\ln{\Det{\Sigma_{\bm{z}}}} + const
+        \label{qz}
+    \end{align}
+
+    \begin{align}
+        \Eq{\ln{Q(\bm{\mu})}}&=\Eq{\ln{\N[\bm{\mu} | \mu_{\bm{\mu}}]{\Sigma_{\bm{\mu}}}}} \nonumber \\
+        &=-\frac{q}{2}( 1+\ln(2\pi)) - \frac{1}{2}\ln{\Det{\Sigma_{\bm{\mu}}}} \nonumber \\
+        &=-\frac{1}{2}\ln{\Det{\Sigma_{\bm{\mu}}}} + const
+        \label{qmu}
+    \end{align}
+
+    \begin{align}
+        \Eq{\ln{Q(\bm{\alpha})}}=&\Eq{\ln{\prod_{i=1}^q \Gamma(\alpha_i \vert a_\alpha,b_{\alpha i})}} \\
+        &=\sum_{i=1}^q -\tilde{a}_\alpha+\ln{\tilde{b}_{\alpha i}}-\ln{\Gamma(\tilde{a}_\alpha)}-(1-\tilde{a}_\alpha)\psi(\tilde{a}_\alpha) \\
+        &=\sum_{i=1}^q \ln{\tilde{b}_{\alpha i}} + const
+        \label{qalpha}
+    \end{align}
+
+    \begin{align}
+        \Eq{\ln{Q(\bm{\delta})}}&= \Eq{\ln{\prod_b^B\mathcal{N}(\bm{\delta}^{(b)}|\mu_{\bm{\delta}^{(b)}}, \Sigma_{\bm{\delta}})}} \nonumber \\
+        &=\sum_b^B\Eq{\ln{\mathcal{N}(\bm{\delta}^{(b)}|\mu_{\bm{\delta}^{(b)}},\Sigma_{\bm{\delta}})}} \nonumber \\
+        &= \sum_b^B-\frac{q}{2}(1 + \ln{2\pi}) - \frac{1}{2}\ln{|\Sigma_{\bm{\delta}}|}\nonumber \\
+        &= -\frac{B}{2}\ln{|\Sigma_{\bm{\delta}}|} + const
+        \label{qdelta}
+    \end{align}
+
+    \begin{align}
+        \Eq{\ln{Q(\bm{\tau})}}&=\Eq{\ln{\prod_b^B\prod_t^T\Gamma(\bm{\tau}_t^{(b)}|\tilde{\alpha}_{\bm{\tau}_t^{(b)}}, \tilde{\beta}_{\bm{\tau}_t^{(b)}})}} \nonumber \\
+        &=\sum_b^B\sum_t^T\Eq{\ln{\Gamma(\bm{\tau}_t^{(b)}|\tilde{\alpha}_{\bm{\tau}_t^{(b)}}, \tilde{\beta}_{\bm{\tau}_t^{(b)}})}} \nonumber \\
+        &=\sum_b^B\sum_t^T -\tilde{\alpha}_{\bm{\tau}_t^{(b)}}+ \ln{\tilde{\beta}_{\bm{\tau}_t^{(b)}}} - \ln{\Gamma(\tilde{\alpha}_{\bm{\tau}_t^{(b)}})} - (1 - \tilde{\alpha}_{\bm{\tau}_t^{(b)}}) \psi(\tilde{\alpha}_{\bm{\tau}_t^{(b)}})
+        \label{qtau}
+    \end{align}
+
+\section{Update rules}
+    \begin{align}
+        Q^*(\bm{\delta^{(b)}}) &= \mathbb{E}_{\bm{W},\bm{Z},\bm{\mu}, \bm{\alpha}, \bm{\tau}}\ln(P(X,\bm{W},\bm{Z}, \bm{\alpha}, \bm{\tau}, \bm{\delta}, \bm{\mu})) \nonumber \\
+        &= \Eq{\ln{P(X|\bm{W},\bm{Z}, \bm{\tau}, \bm{\delta}, \bm{\mu})*P(\bm{\delta})}} \nonumber \\
+        &= \sum_b^B\sum_t^T\Eq{\ln{\N[x_t^{(b)}|\bm{W}diag(\bm{\delta}^{(b)})\bm{z}_t + \bm{\mu}^{(b)}]{\bm{\tau}_t^{(b)-1}I_V}}} + \sum_b^B\Eq{\ln{\N[\bm{\delta}^{(b)}|0]{I_q}}} \nonumber \\
+        & = \sum_b^B\sum_t^T\Eq{-\frac{V}{2}\ln{2\pi}} + \Eq{ \frac{\ln{|\bm{\tau}_t^{(b)}I_V|}}{2}} \nonumber \\
+        & -\frac{1}{2}\Eq{(\bm{x_t^{(b)}} - \bm{W}diag(\bm{\delta}^{(b)})\bm{z}_t - \bm{\mu}^{(b)})^T(\bm{\tau}_t^{(b)}I_V)(\bm{x}_t^{(b)} -  \bm{W}diag(\bm{\delta}^{(b)})\bm{z}_t - \bm{\mu}^{(b)})} \nonumber \\
+        & + \sum_b^B\Eq{-\frac{q}{2}\ln{2\pi} -\frac{1}{2}\ln{|I_q|} - \frac{1}{2}\bm{\delta}^{(b)T}\bm{\delta}^{(b)}} \nonumber \\
+        & \propto \sum_b^B\Eq{\bm{\delta}^{(b)T}\bm{\delta}^{(b)}} + \sum_t^T\Eq{(\bm{x_t^{(b)}} - \bm{W}diag(\bm{\delta}^{(b)})\bm{z}_t - \bm{\mu}^{(b)})^T(\bm{\tau}_t^{(b)}I_V)(\bm{x}_t^{(b)} -  \bm{W}diag(\bm{\delta}^{(b)})\bm{z}_t - \bm{\mu}^{(b)})}\nonumber \\
+        &=\sum_b^B\Eq{\bm{\delta}^{(b)T}\bm{\delta}^{(b)}} + \sum_t^T\Eq{\bm{\tau}_t^{(b)}}(\|x_t^{(b)}\|^2 - 2\Eq{x_t^{(b)T}\bm{W}diag(\bm{\delta}^{(b)}\bm{z}_t)} - 2\Eq{x_t^{(b)T}}\Eq{\bm{\mu}^{(b)}} \nonumber \\
+        & + Tr(\Eq{\bm{W}^T\bm{W}}\Eq{\bm{z}\bm{z}_t^T}\Eq{diag(\bm{\delta}^{(b)})^2}) + 2 \Eq{\bm{\mu}^{(b)T}}\Eq{\bm{W}}\Eq{diag(\bm{\delta}^{(b)})}\Eq{\bm{z}_t} + \|\bm{\mu}\|^2)\nonumber \\
+    \end{align}
+
+    \begin{equation}
+        \Sigma_{\bm{\delta}} = I + \sum_b^B
+        \Eq{\bm{\delta}^{(b)T}\bm{\delta}^{(b)}}\sum_t^T\Eq{\bm{\tau}_t^{(b)}}\Eq{\bm{w}_t^T\bm{w}_t}
+    \end{equation}
+
+    \begin{equation}
+        \mu_{\bm{\delta_i}} = \Sigma_{\bm{\delta}}\sum_b^B\Eq{\bm{\delta}^{(b)T}}\Eq{W^T}\Eq{\bm{\tau}^{(b)}}x^{(b)}_i
+    \end{equation}
+
+    \begin{equation}
+        \Sigma_{w_t} = (\Eq{\alpha}I + \sum_b^B\bm{\tau^{(b)}}\Eq{\bm{\delta}^{(b)T}\bm{\delta}^{(b)}}\sum_v^V\Eq{\bm{z}_v\bm{z}_v^T})^{-1}
+    \end{equation}
+
+    \begin{equation}
+        \mu_{w_t} = \Sigma_{w_t}\Eq{\sum_b^B\Eq{\bm{\tau}_t^{(b)}}\Eq{diag(\bm{\delta}^{(b)}})\sum_v^V \bm{x}_v^{(b)T}\Eq{\bm{z}_v} }
+    \end{equation}
+
+    \begin{equation}
+        \Sigma_{\bm{\delta}^{(b)}} = (I + \sum_t^T\Eq{\bm{\tau}_t^{(b)}}\Eq{\bm{w}_{:,t}^T\bm{w}_{:,t}}\sum_v^V\Eq{\bm{z}_v^T\bm{z}_v})^{-1}
+    \end{equation}
+
+    \begin{equation}
+        \mu_{\bm{\delta}^{(b)}}=\Sigma_{\bm{\delta}^{(b)}}\sum_v^V\sum_t^T\Eq{\bm{x_{v,t}^{(b)}}}\bm{\tau}^{(b)}_t\Eq{\bm{z}_v}\Eq{\bm{w}_{:,t}}
+    \end{equation}
+
+    \begin{equation}
+        \tilde{\alpha_{\alpha}} = \alpha_{\alpha} + \frac{T}{2}
+    \end{equation}
+    \begin{equation}
+        \tilde{b^{\alpha}_t} = b^{\alpha}_t + \frac{\Eq{\bm{w}_t^T\bm{w}_t}}{2}
+    \end{equation}
+
+    \begin{equation}
+        \tilde{\alpha}_{\bm{\tau}^{(b)}} = \alpha_{\bm{\tau}^{(b)}} + \frac{V}{2}
+    \end{equation}
+
+    \begin{equation}
+        \tilde{b}_t^{\bm{\tau}^{(b)}} = b_t^{\bm{\tau}^{(b)}} + \frac{1}{2}\sum_v^V\Eq{(\bm{x}_{v,t} - \bm{w}_tdiag(\bm{\delta}^{(b)})\bm{z}_v)^2}
+    \end{equation}
+
 \end{document}
