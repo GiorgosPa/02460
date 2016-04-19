@@ -42,7 +42,7 @@ else
 end
 if gpu
     diag_uz=zeros(q,q,D,'gpuArray');
-    eye_qqD=repmat(eye(q),1,1,D); %#ok<USENS>
+    eye_qqD=repmat(eye(q),1,1,D); 
 end % optimize with sparse matrix
 diag_ind=reshape(repmat(1:q+1:q^2,D,1),1,q*D)+reshape((repmat(0:q^2:q^2*(D-1),1,q)),1,q*D);
 WtW=sum(Swi,3)+uw'*uw;
