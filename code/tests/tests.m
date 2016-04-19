@@ -14,7 +14,7 @@ D(:,9:10)=randn(N,2);
 [W,P]=vbpca(D);
 W
 
-[W,P]=sppca(D,'thr',0.001,'maxiter',500,'nrestart',1,'plotL',0,'gpu',1);
+[W,P]=sppca(D,'thr',0.001,'maxiter',200,'nrestart',5,'plotL',0,'gpu',1);
 W
 
 %% Glass data
@@ -63,4 +63,15 @@ load('Group1/group1-Sdata.mat');
 W
 
 W=sppca(data);
+W
+
+%% PET
+
+load('C:\Users\vbeliveau\Downloads\cumi.nopvc.fsaverage.lh.sm10.mat');
+
+% Remove medial wall
+mask=find(sum(dataM,2)~=0);
+dataM=dataM(mask,:);
+
+[W,P]=sppca(dataM,'thr',0.001,'maxiter',10,'nrestart',1,'plotL',1,'gpu',1,'nupdate',1);
 W

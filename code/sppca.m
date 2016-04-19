@@ -12,6 +12,7 @@ if ~exist('gpu','var'), gpu=false; end
 if ~exist('maxiter','var'), maxiter=100; end
 if ~exist('plotL','var'), plotL=false; end
 if ~exist('nrestart','var'), nrestart=1; end
+if ~exist('nupdate','var'), nupdate=10; end
 
 [N,D]=size(t);
 if ~exist('q','var'), q=D-1; end
@@ -20,15 +21,17 @@ b=10e-3;
 c=N*D/2+a;
 beta=10e-3;
 
+if gpu, gpudev=gpuDevice(); end
+
 % t
-if gpu, t=gpuArray(t); end %#ok<*UNRCH>
+if gpu, t=gpuArray(t); wait(gpudev); end %#ok<*UNRCH>
 sum_t2=sum(t(:).^2);
 
 % m
 um=mean(t)';
 
 % W
-disp('Performing SVD');
+disp('Performing SVD initialization of W');
 [~,S,V]=svd(t,'econ');
 uw=V(:,1:q)*diag(sqrt(diag(S(:,1:q))));
 clear S;
@@ -37,6 +40,11 @@ if gpu
 else
     Swi=repmat(eye(q),1,1,D);
 end
+if gpu
+    diag_uz=zeros(q,q,D,'gpuArray');
+    eye_qqD=repmat(eye(q),1,1,D); %#ok<USENS>
+end % optimize with sparse matrix
+diag_ind=reshape(repmat(1:q+1:q^2,D,1),1,q*D)+reshape((repmat(0:q^2:q^2*(D-1),1,q)),1,q*D);
 WtW=sum(Swi,3)+uw'*uw;
 
 if plotL, h=figure; end
@@ -61,17 +69,7 @@ for nres=1:nrestart
     prevL=-inf;
     currentL=-1e32;
     disp('Performing sparse PCA...');
-    while iter<=maxiter&&currentL-prevL>thr
-        % Update iter
-        if ~mod(iter,10)&&iter~=0
-            disp(['Iter ' num2str(iter) ', L=' num2str(prevL)]);
-            if plotL
-                figure(h);
-                plot(L(1:iter));
-                pause(0.001);
-            end
-        end
-        
+    while iter<=maxiter&&currentL-prevL>thr      
         iter=iter+1;
         
         %% x
@@ -81,7 +79,7 @@ for nres=1:nrestart
             Sx=pinv(eye(q)+tau*WtW);
         end
         ux=tau*Sx*uw'*bsxfun(@minus,t,um')';
-        sum_xxt=ux*ux'+N*Sx;
+        sum_xxt=ux*ux'+N*Sx; if gpu, wait(gpudev); end
         sum_ux2=sum(diag(ux*ux'+N*Sx));
         qX=0.5*N*logdet(Sx); % -<q(X)>
         
@@ -96,18 +94,17 @@ for nres=1:nrestart
         qm=0.5*logdet(Sm); % -<q(m)>
         
         %% W
-        
-        if ~gpu, xtm=ux*bsxfun(@minus,t,um'); end
-        % TRY TO OPTIMIZE WITH PAGEFUN
-        for i=1:D
-            Swi(:,:,i)=diag(uz(i,:))*inv(tau*sum_xxt*diag(uz(i,:))+eye(q)); %#ok<MINV>
-            assert(all(eig(Swi(:,:,i))>0))
-            if ~gpu
-                uw2(i,:)=tau*Swi(:,:,i)*xtm(:,i);
-            end
-        end
         if gpu
+            diag_uz(diag_ind)=uz;
+            Swi=pagefun(@mtimes,diag_uz,pagefun(@inv,pagefun(@mtimes,tau*sum_xxt,diag_uz)+eye_qqD));
             uw=squeeze(tau*pagefun(@mtimes,Swi,reshape(ux*bsxfun(@minus,t,um'),q,1,D)))';
+        else
+            xtm=ux*bsxfun(@minus,t,um');
+            for i=1:D
+                Swi(:,:,i)=diag(uz(i,:))*inv(tau*sum_xxt*diag(uz(i,:))+eye(q)); %#ok<MINV>
+                assert(all(eig(Swi(:,:,i))>0))
+                uw(i,:)=tau*Swi(:,:,i)*xtm(:,i);
+            end
         end
         WtW=sum(Swi,3)+uw'*uw;
         
@@ -119,10 +116,7 @@ for nres=1:nrestart
         qW=0.5*sum_logdet_Swi; % -<q(W)>
         
         %% z
-        % TRY TO OPTIMIZE WITH PAGEFUN
-        for i=1:D
-            uz(i,:)=uw(i,:).^2+diag(Swi(:,:,i))';
-        end
+        uz=reshape(uw(:).^2+Swi(diag_ind)',size(uw));
         qz=sum(log(uz(:))); % -<q(z)>
         
         %% tau
@@ -143,7 +137,6 @@ for nres=1:nrestart
         
         prevL=currentL;
         currentL=gather(pt+pX+pm+pW+pz+ptau+qX+qm+qW+qz+qtau);
-        if plotL, L(iter)=currentL; end
         
         % Make sure the lower bound increases
         if iter>1
@@ -151,6 +144,17 @@ for nres=1:nrestart
                 assert(prevL<=currentL);
             catch
                 error('Lower bound decreased.');
+            end
+        end
+        
+        % Display lower bound evaluation
+        if ~mod(iter,nupdate)
+            disp(['Iter ' num2str(iter) ', L=' num2str(currentL)]);
+            if plotL
+                figure(h);
+                L(iter)=currentL;
+                plot(L(1:iter));
+                pause(0.001);
             end
         end
     end
@@ -162,9 +166,9 @@ for nres=1:nrestart
     if currentL>bestL        
         [~,ind]=sort(sum(uw.^2),'descend');
         if gpu
-            W=uw(:,ind);
-        else
             W=gather(uw(:,ind));
+        else
+            W=uw(:,ind);
         end
         P.tau=tau;
         P.m=um;
